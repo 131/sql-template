@@ -141,12 +141,15 @@ function where(vals, chain){
 }
 
 
+transformers["raw"] = function(vals, str, chain){
+  chain([], str + vals);
+}
+
 transformers["where"] = function(vals, str, chain){
   where(vals, function(data, txt) {
     chain(data, `${str} WHERE ${txt}`);
   });
 }
-
 
 transformers["set"] = function(vals, str, chain){
   var values= [], keys = []; Object.keys(vals).forEach(function(k){
@@ -155,6 +158,30 @@ transformers["set"] = function(vals, str, chain){
   });
 
   chain(values, str + "SET " + keys.join(','));
+}
+
+
+SQL.insert = function(table, values) {
+  return SQL`INSERT INTO $id${table} $set${values}`;
+}
+
+SQL.update = function(table, values /* [, where = true] */){
+  var args = [].slice.apply(arguments),
+      table = args.shift(),
+      values = args.shift(),
+      where = args.shift() || true;
+
+  return SQL`UPDATE $id${table} $set${values} $where${where}`;
+}
+
+SQL.select = function(table, where, cols, extra){
+  var args = [].slice.apply(arguments),
+      table = args.shift(),
+      where = args.shift()|| true,
+      cols  = args.shift() || "*",
+      extra = args.shift() || "";
+
+  return SQL`SELECT $raw${cols} FROM $id${table} $where${where} $raw${extra}`;
 }
 
 
