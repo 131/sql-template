@@ -1,0 +1,31 @@
+{
+  "name": "sql-template",
+  "version": "0.0.1",
+  "keywords": [
+    "pg",
+    "pgsql",
+    "sql",
+    "sql-string",
+    "sql-builder",
+    "query-builder",
+    "sql query",
+    "ES6 template string",
+    "prepared statement",
+    "Let's have a beer and talk in Paris"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "mocha": "^2.2.5",
+    "istanbul": "~0.3.18"
+  },
+  "main": "./index.js",
+  "author": {
+    "name": "François Leurent",
+    "email": "131.js@cloudyks.org",
+    "url": "http://github.com/131/"
+  },
+  "scripts": {
+    "test": "node node_modules/istanbul/lib/cli.js  node_modules/mocha/bin/_mocha test/"
+  }
+}
