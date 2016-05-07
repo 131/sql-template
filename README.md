@@ -6,6 +6,7 @@ Template string (ES6) builder for SQL.
 * made with love
 * very simple
 * drop in compatible with pg
+* strongly tested with 100% code coverage
 
 
 # API/Usage
