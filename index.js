@@ -11,17 +11,29 @@ function SQL(parts /*, ...values */){
 
   var str = "", data = [];
   parts.forEach(function(part, i){
-    if(transformMask.test(part)) {
-      let transformer = transformers[transformMask.exec(part)[1]];
-      part = part.replace(transformMask, "");
-      if(transformer)
-        transformer(values[i], part, function(values, part){
-          str += part;
-          data = data.concat.apply(data, values);
-          //parts[i] = { text : part, values : values };
-        });
-    } else {
+    if(i >= values.length) {
       str += part;
+      return;
+    }
+    let value = values[i];
+
+    if(transformMask.test(part)) {
+      let name = transformMask.exec(part)[1], transformer = transformers[name];
+      part = part.replace(transformMask, "");
+      if(!transformer)
+        throw `Unknown transformer ${name}`;
+      transformer(value, part, function(values, part){
+        str += part;
+        data.push.apply(data, values);
+      });
+    } else {
+      if(value instanceof Fragment) {
+        str += part + value.raw;
+        data.push.apply(data, value.values);
+      } else {
+        str += part + "?";
+        data.push(value);
+      }
     }
   });
 
@@ -69,9 +81,9 @@ function cond(k, v, chain){
     return chain([], `${k} IS${v===null?'':' NOT'} NULL`);
   if(type == "boolean")
     return chain([], util.format(v?'%s':'NOT(%s)', k));
-  if(type == "number" || type == "string")
-    return chain([v], util.format('%s=?', k));
 
+  //if(type == "number" || type == "string") //what else..
+    return chain([v], util.format('%s=?', k));
 }
 
 transformers["id"] = function(value, str, chain){
@@ -110,11 +122,9 @@ function where(vals, chain){
         conds.push(txt);
       });
     });
-    return chain(data, conds.join(' '));
+    return chain(data, conds.join(' AND '));
   }
 
-  if(type == "string")
-    return chain([], vals);
     
   if(type == "object") {
     let conds = [], data = [];
@@ -127,6 +137,9 @@ function where(vals, chain){
     return chain(data, conds.join(' AND '));
   }
 
+
+//  if(type == "string") //what else
+  return chain([], vals);
 }
 
 
