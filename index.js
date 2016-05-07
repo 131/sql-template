@@ -146,3 +146,7 @@ transformers["set"] = function(vals, str, chain){
   chain(values, str + "SET " + keys.join(','));
 }
 
+
+
+module.exports = SQL;
+module.exports.Fragment = Fragment;
