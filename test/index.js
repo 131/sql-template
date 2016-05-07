@@ -15,7 +15,7 @@ describe("Initial test suite", function(){
     });
 
     expect(SQL`SELECT * FROM foo WHERE age > ${22}`).to.eql({
-      raw  : 'SELECT * FROM foo WHERE age > ?',
+      raw  : 'SELECT * FROM foo WHERE age > ?:',
       text : 'SELECT * FROM foo WHERE age > $1',
       values: [22],
     });
@@ -24,7 +24,7 @@ describe("Initial test suite", function(){
   it("Should allow mixing tag & non tagged values", function(){
   
     expect(SQL`SELECT * FROM foo $where${{id:44}} AND age > ${22} OR $id${'foo'} = ${42}`).to.eql({
-      raw  : 'SELECT * FROM foo  WHERE "id"=? AND age > ? OR "foo" = ?',
+      raw  : 'SELECT * FROM foo  WHERE "id"=?: AND age > ?: OR "foo" = ?:',
       text : 'SELECT * FROM foo  WHERE "id"=$1 AND age > $2 OR "foo" = $3',
       values: [44, 22, 42],
     });
@@ -41,7 +41,7 @@ describe("Initial test suite", function(){
   it("Should allow mixing tag & non tagged values", function(){
   
     expect(SQL`SELECT * FROM foo $where${{id:44}} AND age > ${22} OR $id${'foo'} = ${42}`).to.eql({
-      raw  : 'SELECT * FROM foo  WHERE "id"=? AND age > ? OR "foo" = ?',
+      raw  : 'SELECT * FROM foo  WHERE "id"=?: AND age > ?: OR "foo" = ?:',
       text : 'SELECT * FROM foo  WHERE "id"=$1 AND age > $2 OR "foo" = $3',
       values: [44, 22, 42],
     });
@@ -58,7 +58,7 @@ describe("Initial test suite", function(){
     });
 
     expect(SQL`SELECT * FROM foo WHERE $id${'LOL'} $in${[1,2,3]}`).to.eql({
-      raw: 'SELECT * FROM foo WHERE "LOL" IN(?,?,?)',
+      raw: 'SELECT * FROM foo WHERE "LOL" IN(?:,?:,?:)',
       text: 'SELECT * FROM foo WHERE "LOL" IN($1,$2,$3)',
       values: [ 1, 2, 3 ],
     });
@@ -90,7 +90,7 @@ describe("Initial test suite", function(){
     });
 
     expect(SQL`SELECT * FROM foo $where${{joe:'bar'}}`).to.eql({
-      raw: 'SELECT * FROM foo  WHERE "joe"=?',
+      raw: 'SELECT * FROM foo  WHERE "joe"=?:',
       text: 'SELECT * FROM foo  WHERE "joe"=$1',
       values: [ 'bar' ],
     });
@@ -108,19 +108,19 @@ describe("Initial test suite", function(){
     });
 
     expect(SQL`SELECT * FROM foo $where${{joe:[1,2,'ok']}}`).to.eql({
-      raw: 'SELECT * FROM foo  WHERE "joe" IN(?,?,?)',
+      raw: 'SELECT * FROM foo  WHERE "joe" IN(?:,?:,?:)',
       text: 'SELECT * FROM foo  WHERE "joe" IN($1,$2,$3)',
       values: [ 1, 2, 'ok' ],
     });
 
     expect(SQL`SELECT * FROM foo $where${{joe:[1,2,'ok'],jane:22}}`).to.eql({
-      raw: 'SELECT * FROM foo  WHERE "joe" IN(?,?,?) AND "jane"=?',
+      raw: 'SELECT * FROM foo  WHERE "joe" IN(?:,?:,?:) AND "jane"=?:',
       text: 'SELECT * FROM foo  WHERE "joe" IN($1,$2,$3) AND "jane"=$4',
       values: [ 1, 2, 'ok', 22 ],
     });
 
     expect(SQL`SELECT * FROM foo $where${{joe:[],jane:22}}`).to.eql({
-      raw: 'SELECT * FROM foo  WHERE FALSE AND "jane"=?',
+      raw: 'SELECT * FROM foo  WHERE FALSE AND "jane"=?:',
       text: 'SELECT * FROM foo  WHERE FALSE AND "jane"=$1',
       values: [ 22 ],
     });
@@ -151,7 +151,7 @@ describe("Initial test suite", function(){
     });
     
     expect(SQL`INSERT INTO foo $set${{joe:22,bar:'ok'}}`).to.eql({
-      raw: 'INSERT INTO foo SET "joe"=?,"bar"=?',
+      raw: 'INSERT INTO foo SET "joe"=?:,"bar"=?:',
       text: 'INSERT INTO foo SET "joe"=$1,"bar"=$2',
       values: [ 22, 'ok' ],
     });
@@ -159,10 +159,18 @@ describe("Initial test suite", function(){
 
   });
 
-  it("Cannot support question mark in schema", function(){
-      expect(function(){
-        return SQL`SELECT '{"a":1, "b":2}'::jsonb ? 'b'`;
-      }).to.throwException(/nope/);
+  it("Should support question mark in schema", function(){
+    expect(SQL`SELECT '{"a":1, "b":2}'::jsonb ? 'b'`).to.eql({
+      raw: "SELECT '{\"a\":1, \"b\":2}'::jsonb ? 'b'",
+      text: "SELECT '{\"a\":1, \"b\":2}'::jsonb ? 'b'",
+      values: [ ],
+    });
+  });
+
+  it("should reject floating specifier", function(){
+    expect(function(){
+      return SQL`SELECT * FROM ?: WHERE FALSE`;
+    }).to.throwException(/Unsupported floating modifier/);
   });
 
   it("Should check recursive transposition", function(){
@@ -172,14 +180,14 @@ describe("Initial test suite", function(){
       
     expect(SQL`SELECT * FROM lol $where${[{joe:22}, SQL`BAR IN(${sub})`]}`).to.eql({//, sub
 
-      raw: 'SELECT * FROM lol  WHERE "joe"=? AND BAR IN(SELECT * FROM foo  WHERE "joe" IN(?,?,?))',
+      raw: 'SELECT * FROM lol  WHERE "joe"=?: AND BAR IN(SELECT * FROM foo  WHERE "joe" IN(?:,?:,?:))',
       text: 'SELECT * FROM lol  WHERE "joe"=$1 AND BAR IN(SELECT * FROM foo  WHERE "joe" IN($2,$3,$4))',
       values: [ 22, 1, 2, 'ok' ],
     });
 
     expect(SQL`SELECT * FROM lol $where${{joe:22}} AND BAR IN(${sub})`).to.eql({
 
-      raw: 'SELECT * FROM lol  WHERE "joe"=? AND BAR IN(SELECT * FROM foo  WHERE "joe" IN(?,?,?))',
+      raw: 'SELECT * FROM lol  WHERE "joe"=?: AND BAR IN(SELECT * FROM foo  WHERE "joe" IN(?:,?:,?:))',
       text: 'SELECT * FROM lol  WHERE "joe"=$1 AND BAR IN(SELECT * FROM foo  WHERE "joe" IN($2,$3,$4))',
       values: [ 22, 1, 2, 'ok' ],
     });

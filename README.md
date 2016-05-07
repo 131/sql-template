@@ -25,16 +25,17 @@ pg(SQL`SELECT * FROM foo $where${ {name:'John doe'} }`)
 pg(SQL`SELECT * FROM foo $where${ {id:[1,2,3], type:'snow'} }`)
   {query:'SELECT * FROM foo WHERE "id" IN($1,$2,$3) AND "type"=$4 ', values: [1,2,3,"snow"]} 
 
+```
 
-# Tags list
+# Tags (transformers) list
 ## $where$
 
 ## $set$
 
 ## $values$
 
+Note that transformers internaly use `?:` as parameter placeholder, per jsonb compliance.
 
-```
 
 # TODO
 * Get rich or die tryin'

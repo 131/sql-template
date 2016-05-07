@@ -31,7 +31,7 @@ function SQL(parts /*, ...values */){
         str += part + value.raw;
         data.push.apply(data, value.values);
       } else {
-        str += part + "?";
+        str += part + "?:";
         data.push(value);
       }
     }
@@ -49,12 +49,10 @@ class Fragment {
     this.values = values;
 
     //now, replace all ? with proper $i placeholders
-    let  parts = text.split('?');
+    let  parts = text.split('?:');
 
-    if(parts.length - 1 !== values.length) {
-      console.error({parts, values});
-      throw "nope";
-    }
+    if(parts.length - 1 !== values.length)
+      throw `Unsupported floating modifier`;
 
     this.text = parts.map(function(v, i){
       return i == values.length ? v :`${v}$${i+1}`;
@@ -83,7 +81,7 @@ function cond(k, v, chain){
     return chain([], util.format(v?'%s':'NOT(%s)', k));
 
   //if(type == "number" || type == "string") //what else..
-    return chain([v], util.format('%s=?', k));
+    return chain([v], util.format('%s=?:', k));
 }
 
 transformers["id"] = function(value, str, chain){
@@ -92,7 +90,7 @@ transformers["id"] = function(value, str, chain){
 
 transformers["in"] = function(values, str, chain){
   let length = values.length,
-      pad = Array.apply(null, {length}).map(function(){return '?'});
+      pad = Array.apply(null, {length}).map(function(){return '?:'});
   if(!length)
     return chain([], str + "IN('')");
 
@@ -152,7 +150,7 @@ transformers["where"] = function(vals, str, chain){
 
 transformers["set"] = function(vals, str, chain){
   var values= [], keys = []; Object.keys(vals).forEach(function(k){
-    keys.push(util.format('%s=?', escape(k)));
+    keys.push(util.format('%s=?:', escape(k)));
     values.push(vals[k]);
   });
 
