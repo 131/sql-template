@@ -59,6 +59,10 @@ class Fragment {
     }).join('');
 
   }
+
+  toString(){
+    return this.raw;
+  }
 }
 
 
@@ -161,8 +165,21 @@ transformers["set"] = function(vals, str, chain){
 }
 
 
+transformers["values"] = function(vals, str, chain){
+  var values= [], keys = [], place = [];
+
+  Object.keys(vals).forEach(function(k){
+    keys.push(escape(k));
+    values.push(vals[k]);
+    place.push("?:");
+  });
+
+  chain(values, util.format('%s (%s) VALUES (%s)', str, keys.join(','), place.join(',')));
+}
+
+
 SQL.insert = function(table, values) {
-  return SQL`INSERT INTO $id${table} $set${values}`;
+  return SQL`INSERT INTO $id${table} $values${values}`;
 }
 
 SQL.update = function(table, values /* [, where = true] */){
