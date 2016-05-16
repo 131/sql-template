@@ -21,6 +21,17 @@ describe("Initial test suite", function(){
     });
   });
 
+
+  it("Should check for namespace support", function(){
+    var table = "private.lol";
+    expect(SQL`SELECT * FROM $id${table}`).to.eql({
+      raw  : 'SELECT * FROM "private"."lol"',
+      text : 'SELECT * FROM "private"."lol"',
+      values: [],
+    });
+  });
+
+
   it("Should allow mixing tag & non tagged values", function(){
   
     expect(SQL`SELECT * FROM foo $where${{id:44}} AND age > ${22} OR $id${'foo'} = ${42}`).to.eql({

@@ -9,8 +9,8 @@ describe("Testing helpers", function(){
 
   it("Should check SQL.insert", function(){
     expect(SQL.insert("foo", {name:"John Doe"}) ).to.eql({
-      raw  : "INSERT INTO \"foo\" SET \"name\"=?:",
-      text : "INSERT INTO \"foo\" SET \"name\"=$1",
+      raw  : "INSERT INTO \"foo\"  (\"name\") VALUES (?:)",
+      text : "INSERT INTO \"foo\"  (\"name\") VALUES ($1)",
       values: ["John Doe"],
     });
   });

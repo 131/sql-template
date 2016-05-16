@@ -88,8 +88,9 @@ function cond(k, v, chain){
     return chain([v], util.format('%s=?:', k));
 }
 
+var sep = ".";
 transformers["id"] = function(value, str, chain){
-  chain([], str + escape(value));
+  chain([], str + value.split(sep).map(escape).join(sep) );
 }
 
 transformers["in"] = function(values, str, chain){
