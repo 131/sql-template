@@ -50,3 +50,4 @@ pg, sql, sql-string, sql-builder, ES6 template string, prepared statement, escap
 
 [![Build Status](https://travis-ci.org/131/sql-template.svg?branch=master)](https://travis-ci.org/131/sql-template)
 [![Coverage Status](https://coveralls.io/repos/github/131/sql-template/badge.svg?branch=master)](https://coveralls.io/github/131/sql-template?branch=master)
+[![NPM version](https://img.shields.io/npm/v/sql-template.svg)](https://www.npmjs.com/package/sql-template)
