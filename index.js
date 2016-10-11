@@ -89,10 +89,26 @@ function cond(k, v, chain){
 }
 
 var sep = ".";
-transformers["id"] = function(value, str, chain){
+var id = function(value, str, chain){
+  if(Object.keys(id.prefixes).length)
+    value = resolve(value);
+
   chain([], str + value.split(sep).map(escape).join(sep) );
 }
 
+id.prefixes = {};
+
+var resolve = function(value) {
+  var reg = new RegExp('^(' + Object.keys(id.prefixes).join('|') + ')_');
+  value = value.replace(reg, function(){
+    return id.prefixes[arguments[1]];
+  });
+  return value;
+}
+
+
+
+transformers["id"] = id;
 transformers["in"] = function(values, str, chain){
   let length = values.length,
       pad = Array.apply(null, {length}).map(function(){return '?:'});
@@ -128,7 +144,6 @@ function where(vals, chain){
     return chain(data, conds.join(' AND '));
   }
 
-    
   if(type == "object") {
     let conds = [], data = [];
     for(let k in vals)
@@ -206,3 +221,4 @@ SQL.select = function(table, where, cols, extra){
 
 module.exports = SQL;
 module.exports.Fragment = Fragment;
+module.exports.transformers = transformers;
