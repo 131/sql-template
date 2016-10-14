@@ -234,7 +234,9 @@ var explode_search_blob = function(qs) {
 }
 
 
-SQL.search_blob = function(search_field, qs, main_field) {
+SQL.search_blob = function(search_field, qs, main_field, LIKE) {
+  if(!LIKE)
+    LIKE = 'ILIKE';
 
   var out = explode_search_blob(qs);
   if(!out.length)
@@ -253,7 +255,7 @@ SQL.search_blob = function(search_field, qs, main_field) {
       parts[part].push( { [main_field] : value } );
     } else {
       value = '%' + value + '%';
-      parts[part].push( SQL`$raw${search_field} $raw${NOT} LIKE ${value}` );
+      parts[part].push( SQL`$raw${search_field} $raw${NOT} $raw${LIKE} ${value}` );
     }
   });
 
