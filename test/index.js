@@ -143,8 +143,8 @@ describe("Initial test suite", function(){
     });
 
     expect(SQL`SELECT * FROM foo $where${[{joe:true}, {jane:false}]}`).to.eql({
-      raw: 'SELECT * FROM foo  WHERE "joe" AND NOT("jane")',
-      text: 'SELECT * FROM foo  WHERE "joe" AND NOT("jane")',
+      raw: 'SELECT * FROM foo  WHERE ("joe" AND NOT("jane"))',
+      text: 'SELECT * FROM foo  WHERE ("joe" AND NOT("jane"))',
       values: [],
     })
 
@@ -156,8 +156,8 @@ describe("Initial test suite", function(){
     });
 
     expect(SQL`SELECT * FROM foo $where${['ok', 'nope']}`).to.eql({
-      raw: 'SELECT * FROM foo  WHERE ok AND nope',
-      text: 'SELECT * FROM foo  WHERE ok AND nope',
+      raw: 'SELECT * FROM foo  WHERE (ok AND nope)',
+      text: 'SELECT * FROM foo  WHERE (ok AND nope)',
       values: [],
     });
     
@@ -191,8 +191,8 @@ describe("Initial test suite", function(){
       
     expect(SQL`SELECT * FROM lol $where${[{joe:22}, SQL`BAR IN(${sub})`]}`).to.eql({//, sub
 
-      raw: 'SELECT * FROM lol  WHERE "joe"=?: AND BAR IN(SELECT * FROM foo  WHERE "joe" IN(?:,?:,?:))',
-      text: 'SELECT * FROM lol  WHERE "joe"=$1 AND BAR IN(SELECT * FROM foo  WHERE "joe" IN($2,$3,$4))',
+      raw: 'SELECT * FROM lol  WHERE ("joe"=?: AND BAR IN(SELECT * FROM foo  WHERE "joe" IN(?:,?:,?:)))',
+      text: 'SELECT * FROM lol  WHERE ("joe"=$1 AND BAR IN(SELECT * FROM foo  WHERE "joe" IN($2,$3,$4)))',
       values: [ 22, 1, 2, 'ok' ],
     });
 

@@ -1,16 +1,18 @@
 "use strict";
+
 var util = require('util');
 
 var transformMask = new RegExp('\\$([a-zA-Z0-9_-]+)$');
 
 var transformers = {};
 
-function SQL(parts /*, ...values */){
+function SQL(parts /*, ...values */) {
+
   var values = [].slice.call(arguments, 1),
        parts = [].slice.call(parts); //this     is     javascript
 
   var str = "", data = [];
-  parts.forEach(function(part, i){
+  parts.forEach(function(part, i) {
     if(i >= values.length) {
       str += part;
       return;
@@ -22,7 +24,7 @@ function SQL(parts /*, ...values */){
       part = part.replace(transformMask, "");
       if(!transformer)
         throw `Unknown transformer ${name}`;
-      transformer(value, part, function(values, part){
+      transformer(value, part, function(values, part) {
         str += part;
         data.push.apply(data, values);
       });
@@ -44,7 +46,7 @@ function SQL(parts /*, ...values */){
 
 class Fragment {
 
-  constructor (text, values){
+  constructor (text, values) {
     this.raw = text;
     this.values = values;
 
@@ -54,24 +56,24 @@ class Fragment {
     if(parts.length - 1 !== values.length)
       throw `Unsupported floating modifier`;
 
-    this.text = parts.map(function(v, i){
+    this.text = parts.map(function(v, i) {
       return i == values.length ? v :`${v}$${i+1}`;
     }).join('');
 
   }
 
-  toString(){
+  toString() {
     return this.raw;
   }
 }
 
 
-function escape(value){
+function escape(value) {
   return util.format('"%s"', value);
 }
 
 
-function cond(k, v, chain){
+function cond(k, v, chain) {
   k = escape(k);
   var type = typeof v;
 
@@ -89,7 +91,7 @@ function cond(k, v, chain){
 }
 
 var sep = ".";
-var id = function(value, str, chain){
+var id = function(value, str, chain) {
   if(Object.keys(id.prefixes).length)
     value = resolve(value);
 
@@ -100,7 +102,7 @@ id.prefixes = {};
 
 var resolve = function(value) {
   var reg = new RegExp('^(' + Object.keys(id.prefixes).join('|') + ')_');
-  value = value.replace(reg, function(){
+  value = value.replace(reg, function() {
     return id.prefixes[arguments[1]];
   });
   return value;
@@ -109,9 +111,9 @@ var resolve = function(value) {
 
 
 transformers["id"] = id;
-transformers["in"] = function(values, str, chain){
+transformers["in"] = function(values, str, chain) {
   let length = values.length,
-      pad = Array.apply(null, {length}).map(function(){return '?:'});
+      pad = Array.apply(null, {length}).map(function() {return '?:'});
   if(!length)
     return chain([], str + "IN('')");
 
@@ -119,7 +121,19 @@ transformers["in"] = function(values, str, chain){
   chain(values, str);
 }
 
-function where(vals, chain){
+function merge(vals, operator, chain) {
+  let conds = [], data = [];
+
+  vals.forEach(function(val) {
+    where(val, function(vals, txt) {
+      data.push.apply(data, vals);
+      conds.push(txt);
+    });
+  });
+  return chain(data, conds.length == 1 ? conds[0] : '(' + conds.join(operator) + ')');
+}
+
+function where(vals, chain) {
 
   let type = typeof vals;
 
@@ -132,23 +146,13 @@ function where(vals, chain){
   if(type == "boolean")
     return chain([], (vals ? "TRUE" : "FALSE" ));
 
-  if(Array.isArray(vals)) {
-    let conds = [], data = [];
-
-    vals.forEach(function(val){
-      where(val, function(vals, txt){
-        data.push.apply(data, vals);
-        conds.push(txt);
-      });
-    });
-    return chain(data, conds.join(' AND '));
-  }
+  if(Array.isArray(vals))
+    return merge(vals, ' AND ', chain);
 
   if(type == "object") {
     let conds = [], data = [];
     for(let k in vals)
-      cond(k, vals[k], function(vals, txt){
-
+      cond(k, vals[k], function(vals, txt) {
         data.push.apply(data, vals);
         conds.push(txt);
       });
@@ -161,18 +165,18 @@ function where(vals, chain){
 }
 
 
-transformers["raw"] = function(vals, str, chain){
+transformers["raw"] = function(vals, str, chain) {
   chain([], str + vals);
 }
 
-transformers["where"] = function(vals, str, chain){
+transformers["where"] = function(vals, str, chain) {
   where(vals, function(data, txt) {
     chain(data, `${str} WHERE ${txt}`);
   });
 }
 
-transformers["set"] = function(vals, str, chain){
-  var values= [], keys = []; Object.keys(vals).forEach(function(k){
+transformers["set"] = function(vals, str, chain) {
+  var values= [], keys = []; Object.keys(vals).forEach(function(k) {
     keys.push(util.format('%s=?:', escape(k)));
     values.push(vals[k]);
   });
@@ -181,10 +185,10 @@ transformers["set"] = function(vals, str, chain){
 }
 
 
-transformers["values"] = function(vals, str, chain){
+transformers["values"] = function(vals, str, chain) {
   var values= [], keys = [], place = [];
 
-  Object.keys(vals).forEach(function(k){
+  Object.keys(vals).forEach(function(k) {
     keys.push(escape(k));
     values.push(vals[k]);
     place.push("?:");
@@ -198,7 +202,7 @@ SQL.insert = function(table, values) {
   return SQL`INSERT INTO $id${table} $values${values}`;
 }
 
-SQL.update = function(table, values /* [, where = true] */){
+SQL.update = function(table, values /* [, where = true] */) {
   var args = [].slice.apply(arguments),
       table = args.shift(),
       values = args.shift(),
@@ -207,7 +211,7 @@ SQL.update = function(table, values /* [, where = true] */){
   return SQL`UPDATE $id${table} $set${values} $where${where}`;
 }
 
-SQL.select = function(table, where, cols, extra){
+SQL.select = function(table, where, cols, extra) {
   var args = [].slice.apply(arguments),
       table = args.shift(),
       where = args.shift()|| true,
@@ -216,6 +220,54 @@ SQL.select = function(table, where, cols, extra){
 
   return SQL`SELECT $raw${cols} FROM $id${table} $where${where} $raw${extra}`;
 }
+
+
+
+
+var mask = new RegExp(`(-)?(#)?(?:"([^"]+)"|'([^']+)'|([^\\s,]+))|(\\s*,\\s*)`, 'g');
+
+var explode_search_blob = function(qs) {
+  var qs  = qs.trim(), out = [], tmp;
+  while(tmp = mask.exec(qs))
+      out.push(tmp);
+  return out;
+}
+
+
+SQL.search_blob = function(search_field, qs, main_field) {
+
+  var out = explode_search_blob(qs);
+  if(!out.length)
+    return false;
+
+  var parts = [[]],  part = 0;
+  out.forEach(function(arg) {
+    if(arg[6])
+      return parts[++part] = [];
+
+    var NOT  = (arg[1] == '-' ? 'NOT' : '');
+    var is_numeric = arg[2] == '#';
+
+    var value = (arg[3] || arg[4] || arg[5]);
+    if(is_numeric && main_field) {
+      parts[part].push( { [main_field] : value } );
+    } else {
+      value = '%' + value + '%';
+      parts[part].push( SQL`$raw${search_field} $raw${NOT} LIKE ${value}` );
+    }
+  });
+
+
+
+  var results;
+
+  merge(parts, ' OR ', function(data, txt) {
+    results = {data, txt};
+  });
+
+  return new Fragment(results.txt, results.data);
+}
+
 
 
 

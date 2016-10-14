@@ -44,6 +44,13 @@ pg(SQL`SELECT * FROM foo $where${ {id:[1,2,3], type:'snow'} }`)
 Note that transformers internaly use `?:` as parameter placeholder, per jsonb compliance.
 
 
+# Static API
+## SQL.search_blob (search_field, expression)
+Compute a smart query expression.
+
+
+
+
 # TODO
 * Get rich or die tryin'
 
