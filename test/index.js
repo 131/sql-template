@@ -88,6 +88,27 @@ describe("Initial test suite", function(){
       values: [],
     });
 
+    var nope; //test undefined as FALSE
+    expect(SQL`SELECT * FROM foo $where${nope}`).to.eql({
+      raw: 'SELECT * FROM foo  WHERE FALSE',
+      text: 'SELECT * FROM foo  WHERE FALSE',
+      values: [],
+    });
+
+    var none = null;
+    expect(SQL`SELECT * FROM foo $where${none}`).to.eql({
+      raw: 'SELECT * FROM foo  WHERE FALSE',
+      text: 'SELECT * FROM foo  WHERE FALSE',
+      values: [],
+    });
+
+    expect(SQL`SELECT * FROM foo $where${{none}}`).to.eql({
+      raw: 'SELECT * FROM foo  WHERE "none" IS NULL',
+      text: 'SELECT * FROM foo  WHERE "none" IS NULL',
+      values: [],
+    });
+
+
     expect(SQL`SELECT * FROM foo $where${true}`).to.eql({
       raw: 'SELECT * FROM foo  WHERE TRUE',
       text: 'SELECT * FROM foo  WHERE TRUE',

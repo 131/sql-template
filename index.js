@@ -140,7 +140,7 @@ function where(vals, chain) {
   if(vals instanceof Fragment)
     return chain(vals.values, vals.raw);
 
-  if(Array.isArray(vals) && vals.length == 0)
+  if(Array.isArray(vals) && vals.length == 0 || vals === undefined || vals === null)
     return chain([], "FALSE");
 
   if(type == "boolean")
