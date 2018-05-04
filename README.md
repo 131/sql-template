@@ -5,6 +5,7 @@ Template string (ES6) builder for SQL.
 [![Build Status](https://travis-ci.org/131/sql-template.svg?branch=master)](https://travis-ci.org/131/sql-template)
 [![Coverage Status](https://coveralls.io/repos/github/131/sql-template/badge.svg?branch=master)](https://coveralls.io/github/131/sql-template?branch=master)
 [![NPM version](https://img.shields.io/npm/v/sql-template.svg)](https://www.npmjs.com/package/sql-template)
+[![Code style](https://img.shields.io/badge/code%2fstyle-ivs-green.svg)](https://www.npmjs.com/package/eslint-plugin-ivs)
 
 
 ## Key features
