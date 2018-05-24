@@ -21,16 +21,25 @@
     "mocha": "^3.1.2"
   },
   "main": "./index.js",
-  "author": {
-    "name": "François Leurent",
-    "email": "131.js@cloudyks.org",
-    "url": "http://github.com/131/"
-  },
+  "author": "François Leurent <131.js@cloudyks.org> (http://github.com/131/)",
   "scripts": {
     "preversion": "npm run eslint",
     "eslint": "eslint index.js test",
     "mocha": "node node_modules/mocha/bin/_mocha",
     "test": "node node_modules/istanbul/lib/cli.js  cover --report text-summary --report html --report lcov  node_modules/mocha/bin/_mocha",
     "coveralls": "npm install coveralls && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info"
-  }
+  },
+  "description": "Template string (ES6) builder for SQL.",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/131/sql-template.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/131/sql-template/issues"
+  },
+  "homepage": "https://github.com/131/sql-template#readme"
 }
