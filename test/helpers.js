@@ -6,13 +6,22 @@ const SQL    = require('../');
 
 describe("Testing helpers", function() {
 
+  it("Should check SQL.insert_bulk", function() {
+    expect(SQL.insert_bulk("foo", ["name", "age"], [["John Doe", 21], ["Edmond Dantès", 41]])).to.eql({
+      raw  : "INSERT INTO \"foo\" (\"name\",\"age\") VALUES (?:,?:),(?:,?:)",
+      text : "INSERT INTO \"foo\" (\"name\",\"age\") VALUES ($1,$2),($3,$4)",
+      values : ["John Doe", 21, "Edmond Dantès", 41],
+    });
+  });
+
   it("Should check SQL.insert", function() {
     expect(SQL.insert("foo", {name : "John Doe"})).to.eql({
-      raw  : "INSERT INTO \"foo\"  (\"name\") VALUES (?:)",
-      text : "INSERT INTO \"foo\"  (\"name\") VALUES ($1)",
+      raw  : "INSERT INTO \"foo\" (\"name\") VALUES (?:)",
+      text : "INSERT INTO \"foo\" (\"name\") VALUES ($1)",
       values : ["John Doe"],
     });
   });
+
 
 
   it("Should check SQL.update", function() {

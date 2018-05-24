@@ -163,6 +163,9 @@ function where(vals, chain) {
   return chain([], vals);
 }
 
+transformers["keys"] = function(keys, str, chain) {
+  chain([], str + '(' + keys.map(escape).join(',') + ')');
+};
 
 transformers["raw"] = function(vals, str, chain) {
   chain([], str + vals);
@@ -186,21 +189,43 @@ transformers["set"] = function(vals, str, chain) {
 
 
 transformers["values"] = function(vals, str, chain) {
-  let values = [], keys = [], place = [];
+  let values = [], place = [];
 
   Object.keys(vals).forEach(function(k) {
-    keys.push(escape(k));
     values.push(vals[k]);
     place.push("?:");
   });
 
-  chain(values, util.format('%s (%s) VALUES (%s)', str, keys.join(','), place.join(',')));
+  chain(values, str + util.format('VALUES (%s)', place.join(',')));
 };
+
+transformers["bulk"] = function(vals, str, chain) {
+
+  let values = [], places = [];
+
+  vals.forEach(function(line) {
+    let place = [];
+    line.forEach(function(value) {
+      values.push(value);
+      place.push("?:");
+    });
+    places.push("(" + place.join(',') + ")");
+  });
+
+  chain(values, str + "VALUES " + places.join(','));
+};
+
 
 
 SQL.insert = function(table, values) {
-  return SQL`INSERT INTO $id${table} $values${values}`;
+  let keys = Object.keys(values);
+  return SQL`INSERT INTO $id${table} $keys${keys} $values${values}`;
 };
+
+SQL.insert_bulk = function(table, keys, values) {
+  return SQL`INSERT INTO $id${table} $keys${keys} $bulk${values}`;
+};
+
 
 SQL.update = function(table, values, where = true) {
   return SQL`UPDATE $id${table} $set${values} $where${where}`;
