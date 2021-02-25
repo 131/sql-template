@@ -1,6 +1,6 @@
 {
   "name": "sql-template",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "keywords": [
     "pg",
     "pgsql",
@@ -26,7 +26,7 @@
     "preversion": "npm run eslint",
     "eslint": "eslint index.js test",
     "mocha": "node node_modules/mocha/bin/_mocha -b",
-    "cover" : "nyc --temp-directory coverage/.nyc_output --reporter text-summary --reporter html --reporter lcov  mocha",
+    "cover": "nyc --temp-directory coverage/.nyc_output --reporter text-summary --reporter html --reporter lcov  mocha",
     "test": "npm run eslint && npm run cover",
     "coveralls": "npm install coveralls && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info"
   },
