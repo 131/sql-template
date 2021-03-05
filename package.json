@@ -17,8 +17,8 @@
   "devDependencies": {
     "eslint-plugin-ivs": "^1.3.0",
     "expect.js": "^0.3.1",
-    "nyc": "^13.0.1",
-    "mocha": "^3.1.2"
+    "mocha": "^3.1.2",
+    "nyc": "^15.1.0"
   },
   "main": "./index.js",
   "author": "François Leurent <131.code@leurent.email> (http://github.com/131/)",
@@ -26,9 +26,8 @@
     "preversion": "npm run eslint",
     "eslint": "eslint index.js test",
     "mocha": "node node_modules/mocha/bin/_mocha -b",
-    "cover": "nyc --temp-directory coverage/.nyc_output --reporter text-summary --reporter html --reporter lcov  mocha",
-    "test": "npm run eslint && npm run cover",
-    "coveralls": "npm install coveralls && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info"
+    "cover": "nyc mocha",
+    "test": "npm run eslint && npm run cover"
   },
   "description": "Template string (ES6) builder for SQL.",
   "directories": {
