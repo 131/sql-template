@@ -83,6 +83,25 @@ pq(SQL.insert('foo', {joe: 22, bar: 'ok'}))
   {text: 'INSERT INTO foo ("joe","bar") VALUES ($1,$2), values: [22, 'ok']}
 ```
 
+## SQL.insert_bulk
+```
+pq(SQL.insert_bulk("foo", ["age", "name"], [[22, "ok"], [45, "ng"]]))
+  {text: 'INSERT INTO "foo" ("age","name") VALUES ($1,$2),($3,$4)', values: [ 22, 'ok', 45, 'ng' ]}
+```
+
+## SQL.update
+```
+pq(SQL.update("foo", { joe: 22, bar: "ok" }, { name: "John doe" }))
+  {text: 'UPDATE "foo" SET "joe"=$1,"bar"=$2  WHERE "name"=$3', values: [22, "ok", "John doe"]}
+```
+
+## SQL.select
+```
+pq(SQL.select("foo", { name: "John doe" }, ["name", "age"]))
+  {text: 'SELECT name,age FROM "foo"  WHERE "name"=$1 ', values: [ 'John doe' ]}
+```
+
+
 ## SQL.search_blob (search_field, expression)
 Compute a smart query expression.
 
