@@ -1,6 +1,6 @@
 {
   "name": "sql-template",
-  "version": "1.2.2",
+  "version": "1.3.0",
   "keywords": [
     "pg",
     "pgsql",
@@ -13,8 +13,7 @@
     "prepared statement",
     "Let's have a beer and talk in Paris"
   ],
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "eslint": "^8.57.0",
     "eslint-plugin-ivs": "^2.1.4",
