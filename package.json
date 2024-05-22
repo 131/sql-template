@@ -16,7 +16,7 @@
   "dependencies": {},
   "devDependencies": {
     "eslint": "^8.57.0",
-    "eslint-plugin-ivs": "^2.1.4",
+    "eslint-plugin-ivs": "^4.0.0",
     "expect.js": "^0.3.1",
     "mocha": "^3.1.2",
     "nyc": "^15.1.0"
