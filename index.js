@@ -217,9 +217,11 @@ transformers["bulk"] = function(vals, str, chain) {
 
 
 
-SQL.insert = function(table, values) {
+SQL.insert = function(table, values, returning = "") {
   let keys = Object.keys(values);
-  return SQL`INSERT INTO $id${table} $keys${keys} $values${values}`;
+  if(returning)
+    returning = `RETURNING ${returning}`;
+  return SQL`INSERT INTO $id${table} $keys${keys} $values${values} $raw${returning}`;
 };
 
 SQL.insert_bulk = function(table, keys, values) {

@@ -16,8 +16,16 @@ describe("Testing helpers", function() {
 
   it("Should check SQL.insert", function() {
     expect(SQL.insert("foo", {name : "John Doe"})).to.eql({
-      raw  : "INSERT INTO \"foo\" (\"name\") VALUES (?:)",
-      text : "INSERT INTO \"foo\" (\"name\") VALUES ($1)",
+      raw  : "INSERT INTO \"foo\" (\"name\") VALUES (?:) ",
+      text : "INSERT INTO \"foo\" (\"name\") VALUES ($1) ",
+      values : ["John Doe"],
+    });
+  });
+
+  it("Should check SQL.insert", function() {
+    expect(SQL.insert("foo", {name : "John Doe"}, "user_id")).to.eql({
+      raw  : "INSERT INTO \"foo\" (\"name\") VALUES (?:) RETURNING user_id",
+      text : "INSERT INTO \"foo\" (\"name\") VALUES ($1) RETURNING user_id",
       values : ["John Doe"],
     });
   });
