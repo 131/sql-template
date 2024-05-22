@@ -1,7 +1,7 @@
-name: tests
+name: "Tests and deploy"
 on: [push]
 jobs:
-  tests:
+  test_v8:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -9,8 +9,41 @@ jobs:
       with:
         node-version: '8.x'
     - run: npm install
-    - run: npm test
+    - run: npm run mocha
+  test_vlast:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+    - run: npm install
+    - run: npm run test
+  cover:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+    - run: npm install
+    - run: npm run cover
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    needs: [test_v8, test_vlast, cover]
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '8.x'
+        registry-url: 'https://registry.npmjs.org'
+    - run: npm publish
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
